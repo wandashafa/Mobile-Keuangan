@@ -95,6 +95,140 @@ class _DataUktMahasiswaPageState
     }
   }
 
+  void showFilterSheet() {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(24),
+      ),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            DropdownButtonFormField<String>(
+              initialValue: selectedTahun,
+              decoration: const InputDecoration(
+                labelText: 'Tahun Akademik',
+                border: OutlineInputBorder(),
+              ),
+              items: tahunAkademik.map((e) {
+                return DropdownMenuItem(
+                  value:
+                      e['id_tahun_akademik']
+                          .toString(),
+                  child: Text(
+                    e['nama_tahun_akademik'],
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedTahun = value;
+                });
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            DropdownButtonFormField<String>(
+              initialValue: selectedProdi,
+              decoration: const InputDecoration(
+                labelText: 'Program Studi',
+                border: OutlineInputBorder(),
+              ),
+              items: prodi.map((e) {
+                return DropdownMenuItem(
+                  value:
+                      e['id_prodi']
+                          .toString(),
+                  child: Text(
+                    e['nama_prodi'],
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedProdi = value;
+                });
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            DropdownButtonFormField<String>(
+              initialValue: selectedKategori,
+              decoration: const InputDecoration(
+                labelText: 'Kategori UKT',
+                border: OutlineInputBorder(),
+              ),
+              items: kategoriUkt.map((e) {
+                return DropdownMenuItem(
+                  value:
+                      e['ID_UKT_KATEGORI']
+                          .toString(),
+                  child: Text(
+                    e['NAMA_KATEGORI'],
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedKategori = value;
+                });
+              },
+            ),
+
+            const SizedBox(height: 12),
+
+            DropdownButtonFormField<String>(
+              initialValue: selectedStatus,
+              decoration: const InputDecoration(
+                labelText: 'Status Tagihan',
+                border: OutlineInputBorder(),
+              ),
+              items: statusTagihan.map((e) {
+                return DropdownMenuItem(
+                  value:
+                      e['ID_STATUS_TAGIHAN']
+                          .toString(),
+                  child: Text(
+                    e['NAMA_STATUS_TAGIHAN'],
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedStatus = value;
+                });
+              },
+            ),
+
+            const SizedBox(height: 20),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text(
+                  'Terapkan Filter',
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,151 +258,92 @@ class _DataUktMahasiswaPageState
                 padding:
                     const EdgeInsets.all(16),
                 children: [
+                  Container(
+  padding: const EdgeInsets.all(20),
+  margin: const EdgeInsets.only(
+    bottom: 20,
+  ),
+  decoration: BoxDecoration(
+    color: Colors.white,
+    borderRadius:
+        BorderRadius.circular(20),
+    boxShadow: const [
+      BoxShadow(
+        color: Colors.black12,
+        blurRadius: 8,
+      ),
+    ],
+  ),
+  child: Column(
+    crossAxisAlignment:
+        CrossAxisAlignment.start,
+    children: [
 
-                  /// FILTER
-                  DropdownButtonFormField<
-                      String>(
-                    initialValue:
-                        selectedTahun,
-                    decoration:
-                        const InputDecoration(
-                      labelText:
-                          'Tahun Akademik',
-                      border:
-                          OutlineInputBorder(),
-                    ),
-                    items:
-                        tahunAkademik
-                            .map((e) {
-                      return DropdownMenuItem(
-                        value: e[
-                                'id_tahun_akademik']
-                            .toString(),
-                        child: Text(
-                          e['nama_tahun_akademik'],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged:
-                        (value) {
-                      setState(() {
-                        selectedTahun =
-                            value;
-                      });
-                    },
-                  ),
+      const Text(
+        'Data UKT Mahasiswa',
+        style: TextStyle(
+          fontSize: 28,
+          fontWeight:
+              FontWeight.bold,
+          color: Color(0xff0A2A5E),
+        ),
+      ),
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+      const SizedBox(height: 8),
 
-                  DropdownButtonFormField<
-                      String>(
-                    initialValue:
-                        selectedProdi,
-                    decoration:
-                        const InputDecoration(
-                      labelText:
-                          'Program Studi',
-                      border:
-                          OutlineInputBorder(),
-                    ),
-                    items:
-                        prodi.map((e) {
-                      return DropdownMenuItem(
-                        value: e[
-                                'id_prodi']
-                            .toString(),
-                        child: Text(
-                          e['nama_prodi'],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged:
-                        (value) {
-                      setState(() {
-                        selectedProdi =
-                            value;
-                      });
-                    },
-                  ),
+      const Text(
+        'Kelola data UKT mahasiswa berdasarkan tahun akademik dan program studi.',
+        style: TextStyle(
+          color: Colors.black54,
+        ),
+      ),
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+      const SizedBox(height: 20),
 
-                  DropdownButtonFormField<
-                      String>(
-                    initialValue:
-                        selectedKategori,
-                    decoration:
-                        const InputDecoration(
-                      labelText:
-                          'Kategori UKT',
-                      border:
-                          OutlineInputBorder(),
-                    ),
-                    items:
-                        kategoriUkt
-                            .map((e) {
-                      return DropdownMenuItem(
-                        value: e[
-                                'ID_UKT_KATEGORI']
-                            .toString(),
-                        child: Text(
-                          e['NAMA_KATEGORI'],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged:
-                        (value) {
-                      setState(() {
-                        selectedKategori =
-                            value;
-                      });
-                    },
-                  ),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
 
-                  const SizedBox(
-                    height: 12,
-                  ),
+          ElevatedButton.icon(
+            onPressed:
+                showFilterSheet,
+            style:
+                ElevatedButton.styleFrom(
+              backgroundColor:
+                  const Color(
+                      0xffE8F5EE),
+              foregroundColor:
+                  const Color(
+                      0xff096430),
+              elevation: 0,
+            ),
+            icon: const Icon(
+              Icons.filter_list,
+              size: 18,
+            ),
+            label:
+                const Text('Filter'),
+          ),
 
-                  DropdownButtonFormField<
-                      String>(
-                    initialValue:
-                        selectedStatus,
-                    decoration:
-                        const InputDecoration(
-                      labelText:
-                          'Status Tagihan',
-                      border:
-                          OutlineInputBorder(),
-                    ),
-                    items:
-                        statusTagihan
-                            .map((e) {
-                      return DropdownMenuItem(
-                        value: e[
-                                'ID_STATUS_TAGIHAN']
-                            .toString(),
-                        child: Text(
-                          e[
-                              'NAMA_STATUS_TAGIHAN'],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged:
-                        (value) {
-                      setState(() {
-                        selectedStatus =
-                            value;
-                      });
-                    },
-                  ),
+          if (selectedTahun != null)
+            Chip(
+              label: Text(
+                selectedTahun!,
+              ),
+            ),
 
-                  const SizedBox(
-                    height: 20,
-                  ),
+          if (selectedProdi != null)
+            Chip(
+              label: Text(
+                selectedProdi!,
+              ),
+            ),
+        ],
+      ),
+    ],
+  ),
+),
 
                   /// CARD MAHASISWA
                   ...mahasiswa.map(
