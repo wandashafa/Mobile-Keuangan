@@ -21,6 +21,13 @@ class _TambahBeasiswaPageState
   bool isLoading = false;
 
   Future<void> simpan() async {
+    if (namaController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Nama Beasiswa tidak boleh kosong")),
+      );
+      return;
+    }
+
     setState(() => isLoading = true);
 
     final success =
@@ -36,6 +43,10 @@ class _TambahBeasiswaPageState
 
     if (success) {
       Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal menambahkan beasiswa")),
+      );
     }
   }
 
@@ -83,7 +94,15 @@ class _TambahBeasiswaPageState
 
             SizedBox(
               width: double.infinity,
+              height: 55,
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF096430),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 onPressed:
                     isLoading
                         ? null

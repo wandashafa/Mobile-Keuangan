@@ -72,7 +72,7 @@ class _UktTambahKategoriPageState
         loading = true;
       });
 
-      await controller.tambahKategori(
+      final success = await controller.tambahKategori(
         idJurusan: selectedJurusan!,
         idTahunAkademik: selectedTahun!,
         namaKategori:
@@ -85,14 +85,22 @@ class _UktTambahKategoriPageState
 
       if (!mounted) return;
 
-      Navigator.pop(context, true);
+      if (success) {
+        Navigator.pop(context, true);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content:
-              Text('Kategori berhasil ditambahkan'),
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text('Kategori berhasil ditambahkan'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Gagal menambahkan kategori'),
+          ),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.toString())),

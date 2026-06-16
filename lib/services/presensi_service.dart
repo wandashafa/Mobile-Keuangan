@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'token_storage.dart';
 
+import '../core/constants/api_constants.dart';
+
 class PresensiService {
-  static const String baseUrl =
-      'http://127.0.0.1:8000';
 
   static Future<Map<String, dynamic>> absenMasuk() async {
     try {
@@ -15,7 +15,7 @@ class PresensiService {
       debugPrint("TOKEN PRESENSI = $token");
 
       final response = await http.post(
-        Uri.parse("$baseUrl/api/absen/masuk"),
+        Uri.parse("${ApiConstants.adminBaseUrl}/presensi-pegawai/masuk"),
         headers: {
           "Accept": "application/json",
           "Authorization": "Bearer $token",
@@ -37,7 +37,7 @@ class PresensiService {
           await TokenStorage.getAccessToken();
 
       final response = await http.post(
-        Uri.parse("$baseUrl/api/absen/keluar"),
+        Uri.parse("${ApiConstants.adminBaseUrl}/presensi-pegawai/keluar"),
         headers: {
           "Accept": "application/json",
           "Authorization": "Bearer $token",

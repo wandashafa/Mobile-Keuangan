@@ -113,7 +113,15 @@ class _EditBeasiswaPageState
 
             SizedBox(
               width: double.infinity,
+              height: 55,
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF096430),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 onPressed:
                     isLoading
                         ? null

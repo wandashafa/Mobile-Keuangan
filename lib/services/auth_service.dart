@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../core/constants/api_constants.dart';
+
 class AuthService {
-    static const String baseUrl =
-    'http://127.0.0.1:8000';
 
   /// LOGIN
   static Future<Map<String, dynamic>> login({
@@ -12,7 +12,7 @@ class AuthService {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse("$baseUrl/api/auth/login"),
+        Uri.parse(ApiConstants.login),
         headers: {
           "Accept": "application/json",
           "Content-Type": "application/json",
@@ -49,7 +49,7 @@ class AuthService {
       String refreshToken) async {
     try {
       final response = await http.post(
-        Uri.parse("$baseUrl/api/auth/refresh"),
+        Uri.parse("${ApiConstants.adminBaseUrl}/auth/refresh"),
         headers: {
           "Accept": "application/json",
           "Content-Type": "application/json",

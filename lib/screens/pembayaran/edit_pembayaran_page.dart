@@ -227,19 +227,25 @@ class _EditPembayaranPageState
                 labelText:
                     "Metode Pembayaran",
               ),
-              items:
-                  listMetode.map(
-                (e) {
+              items: [
+                if (selectedMetode != null && !listMetode.any((e) => e.idMetode == selectedMetode))
+                  DropdownMenuItem(
+                    value: selectedMetode,
+                    child: Text("Metode #$selectedMetode"),
+                  ),
+                ...listMetode.map(
+                  (e) {
 
-                  return DropdownMenuItem(
-                    value:
-                        e.idMetode,
-                    child: Text(
-                      e.namaMetode,
-                    ),
-                  );
-                },
-              ).toList(),
+                    return DropdownMenuItem(
+                      value:
+                          e.idMetode,
+                      child: Text(
+                        e.namaMetode,
+                      ),
+                    );
+                  },
+                ),
+              ],
               onChanged: (v) {
 
                 setState(() {
@@ -267,6 +273,7 @@ class _EditPembayaranPageState
                       const Color(
                     0xFF096430,
                   ),
+                  foregroundColor: Colors.white,
                 ),
                 onPressed:
                     simpan,

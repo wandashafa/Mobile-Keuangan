@@ -166,12 +166,16 @@ class _BeasiswaPageState extends State<BeasiswaPage> {
               /// Tombol Tambah
               SizedBox(
                 width: double.infinity,
-                height: 52,
+                height: 55,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         const Color(
                             0xff096430),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onPressed: () async {
                     final result =

@@ -13,10 +13,10 @@ class StatusTagihan {
   ) {
     return StatusTagihan(
       idStatusTagihan:
-          json["ID_STATUS_TAGIHAN"] ?? 0,
+          json["ID_STATUS_TAGIHAN"] ?? json["id_status_tagihan"] ?? 0,
 
       namaStatusTagihan:
-          json["NAMA_STATUS_TAGIHAN"] ?? '',
+          json["NAMA_STATUS_TAGIHAN"] ?? json["nama_status_tagihan"] ?? '',
     );
   }
 }

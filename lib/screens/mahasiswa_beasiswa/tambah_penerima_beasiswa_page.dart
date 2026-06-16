@@ -50,9 +50,13 @@ class _TambahPenerimaBeasiswaPageState
   List<TahunAkademik>
       listTahun = [];
 
+  List<dynamic> listMahasiswa = [];
+
   int? selectedBeasiswa;
 
   int? selectedTahun;
+
+  String? selectedNim;
 
   bool isLoading = false;
 
@@ -63,7 +67,6 @@ class _TambahPenerimaBeasiswaPageState
   }
 
   Future<void> loadDropdown() async {
-
     final beasiswa =
         await beasiswaController
             .getBeasiswa();
@@ -72,55 +75,20 @@ class _TambahPenerimaBeasiswaPageState
     await tahunController
         .getTahunAkademik();
 
-    setState(() {
+    final mhs =
+        await mahasiswaController
+            .getAllMahasiswa();
 
+    setState(() {
       listBeasiswa =
           beasiswa;
 
       listTahun =
           tahun;
 
+      listMahasiswa =
+          mhs;
     });
-  }
-
-  Future<void> cariMahasiswa() async {
-
-    if (nimController.text
-        .trim()
-        .isEmpty) {
-      return;
-    }
-
-    try {
-
-      final result =
-          await mahasiswaController
-              .getMahasiswa(
-        nimController.text,
-      );
-
-      if (!mounted) return;
-
-      final mahasiswa =
-          result["data"];
-
-      namaController.text =
-          mahasiswa["NAMA"] ?? "";
-
-    } catch (e) {
-
-      namaController.clear();
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Mahasiswa tidak ditemukan",
-          ),
-        ),
-      );
-    }
   }
 
   Future<void> simpanData() async {
@@ -158,8 +126,8 @@ class _TambahPenerimaBeasiswaPageState
     if (success) {
 
       Navigator.pop(
-        context,
-        true,
+          context,
+          true,
       );
 
     } else {
@@ -190,6 +158,9 @@ class _TambahPenerimaBeasiswaPageState
           null;
 
       selectedTahun =
+          null;
+
+      selectedNim =
           null;
 
     });
@@ -226,23 +197,34 @@ class _TambahPenerimaBeasiswaPageState
 
           children: [
 
-            TextField(
-              controller:
-                  nimController,
-              decoration:
-                  InputDecoration(
-                labelText:
-                    "NIM Mahasiswa",
-                suffixIcon:
-                    IconButton(
-                  icon:
-                      const Icon(
-                    Icons.search,
-                  ),
-                  onPressed:
-                      cariMahasiswa,
-                ),
+            DropdownButtonFormField<String>(
+              initialValue: selectedNim,
+              decoration: const InputDecoration(
+                labelText: "NIM Mahasiswa",
               ),
+              items: listMahasiswa.map((e) {
+                final nim = e['NIM']?.toString() ?? "";
+                final nama = e['NAMA']?.toString() ?? "";
+                return DropdownMenuItem(
+                  value: nim,
+                  child: Text("$nim - $nama"),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedNim = value;
+                  nimController.text = value ?? "";
+                  final found = listMahasiswa.firstWhere(
+                    (e) => (e['NIM'] ?? '').toString() == (value ?? ''),
+                    orElse: () => null,
+                  );
+                  if (found != null) {
+                    namaController.text = found['NAMA']?.toString() ?? "";
+                  } else {
+                    namaController.clear();
+                  }
+                });
+              },
             ),
 
             const SizedBox(

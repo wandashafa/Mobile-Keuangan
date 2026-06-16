@@ -73,6 +73,7 @@ class _DataUktMahasiswaPageState
         isLoading = false;
       });
     } catch (e) {
+      debugPrint("Error loadData data_ukt_mahasiswa: $e");
       setState(() {
         isLoading = false;
       });

@@ -1,28 +1,55 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../core/constants/api_constants.dart';
+import '../core/utils/local_storage_cache.dart';
 
 class MahasiswaController {
-  static const String baseUrl =
-      'https://keuangan4c06.vps-poliban.my.id/api';
+
+  static final List _dummyMahasiswa = [
+    {"NIM": "A0313001", "NAMA": "Wanda Shafa"},
+    {"NIM": "A0313002", "NAMA": "Darrell"},
+    {"NIM": "A0313003", "NAMA": "Budi Santoso"},
+    {"NIM": "A0313004", "NAMA": "Siti Aminah"}
+  ];
 
   Future<Map<String, dynamic>> getMahasiswa(
       String nim) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/mahasiswa/$nim'),
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConstants.mahasiswaBaseUrl}/mahasiswa/$nim'),
+      );
 
-    final json = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        final data = json['data'] ?? {};
+        await LocalStorageCache.save('cache_mahasiswa_$nim', data);
+        return data;
+      }
+    } catch (_) {}
 
-    return json['data'];
+    final cached = await LocalStorageCache.get('cache_mahasiswa_$nim');
+    if (cached != null) return cached;
+    final found = _dummyMahasiswa.firstWhere((e) => e['NIM'] == nim, orElse: () => null);
+    return found ?? {};
   }
 
   Future<List<dynamic>> getAllMahasiswa() async {
-  final response = await http.get(
-    Uri.parse('$baseUrl/mahasiswa'),
-  );
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConstants.mahasiswaBaseUrl}/mahasiswa'),
+      );
 
-  final json = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body);
+        final list = json['data']?['data'] ?? [];
+        await LocalStorageCache.save('cache_all_mahasiswa', list);
+        return list;
+      }
+    } catch (_) {}
 
-  return json['data']['data'];
-}
+    final cached = await LocalStorageCache.get('cache_all_mahasiswa');
+    if (cached != null) return cached;
+    await LocalStorageCache.save('cache_all_mahasiswa', _dummyMahasiswa);
+    return _dummyMahasiswa;
+  }
 }

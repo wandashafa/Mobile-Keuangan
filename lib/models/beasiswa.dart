@@ -14,11 +14,11 @@ class Beasiswa {
   ) {
     return Beasiswa(
       idBeasiswa:
-          json['ID_BEASISWA'] ?? 0,
+          json['ID_BEASISWA'] ?? json['id_beasiswa'] ?? 0,
       namaBeasiswa:
-          json['NAMA_BEASISWA'] ?? '',
+          json['NAMA_BEASISWA'] ?? json['nama_beasiswa'] ?? '',
       keterangan:
-          json['KETERANGAN'] ?? '',
+          json['KETERANGAN'] ?? json['keterangan'] ?? '',
     );
   }
 }

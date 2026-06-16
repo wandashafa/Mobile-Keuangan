@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../controllers/tagihan_controller.dart';
 import '../../controllers/tahun_akademik_controller.dart';
+import '../../controllers/mahasiswa_controller.dart';
 
 import '../../services/ukt_service.dart';
 
@@ -114,46 +116,50 @@ class _GenerateTagihanMassalPageState
     }
   }
 
-  Future<void> generate()
-      async {
-
+  Future<void> generate() async {
     if (selectedTahun == null ||
         selectedKategori == null ||
         jatuhTempo == null) {
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Lengkapi data",
-          ),
-        ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Lengkapi data")),
       );
-
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(
-      const SnackBar(
-        content: Text(
-          "Generate tagihan dimulai",
-        ),
-      ),
-    );
+    setState(() => isLoading = true);
 
-    /*
-      nanti ketika API mahasiswa
-      sudah tersedia:
+    try {
+      final mhsList = await MahasiswaController().getAllMahasiswa();
+      final statusId = 3; // Belum Bayar by default
 
-      ambil seluruh mahasiswa
+      int generatedCount = 0;
+      for (var m in mhsList) {
+        final nim = m['NIM']?.toString() ?? "";
+        if (nim.isEmpty) continue;
 
-      loop mahasiswa
+        await tagihanController.createTagihan(
+          nim: nim,
+          idTahunAkademik: selectedTahun!,
+          idUktKategori: selectedKategori!,
+          idStatusTagihan: statusId,
+          jatuhTempo: DateFormat('yyyy-MM-dd').format(jatuhTempo!),
+        );
+        generatedCount++;
+      }
 
-      createTagihan()
-    */
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Berhasil membuat $generatedCount tagihan")),
+      );
+      Navigator.pop(context, true);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal melakukan generate tagihan")),
+      );
+    }
+
+    setState(() => isLoading = false);
   }
 
   @override
@@ -260,16 +266,16 @@ class _GenerateTagihanMassalPageState
             ),
 
             SwitchListTile(
-  value: applyBeasiswa,
-  activeThumbColor: const Color(
-    0xFF096430,
-  ),
-  onChanged: (v) {
-    setState(() {
-      applyBeasiswa = v;
-    });
-  },
-),
+              title: const Text("Terapkan Potongan Beasiswa"),
+              subtitle: const Text("Potong nominal tagihan secara otomatis untuk penerima beasiswa"),
+              value: applyBeasiswa,
+              activeThumbColor: const Color(0xFF096430),
+              onChanged: (v) {
+                setState(() {
+                  applyBeasiswa = v;
+                });
+              },
+            ),
 
             const SizedBox(
               height: 16,
@@ -364,12 +370,13 @@ class _GenerateTagihanMassalPageState
                       const Color(
                     0xFF096430,
                   ),
+                  foregroundColor: Colors.white,
                 ),
                 onPressed:
                     generate,
                 label:
                     const Text(
-                  "Proses Generate",
+                  "Buat Tagihan Baru",
                 ),
               ),
             ),

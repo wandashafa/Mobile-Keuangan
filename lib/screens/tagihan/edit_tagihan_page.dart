@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../controllers/tagihan_controller.dart';
 import '../../controllers/status_tagihan_controller.dart';
 import '../../controllers/tahun_akademik_controller.dart';
+import '../../controllers/mahasiswa_controller.dart';
 
 import '../../models/tagihan.dart';
 import '../../models/status_tagihan.dart';
@@ -43,6 +44,9 @@ class _EditTagihanPageState
   final namaController =
       TextEditingController();
 
+  final mahasiswaController =
+      MahasiswaController();
+
   List<StatusTagihan>
       listStatus = [];
 
@@ -65,73 +69,69 @@ class _EditTagihanPageState
   }
 
   Future<void> loadData() async {
+    try {
+      final statusRaw = await statusController.getStatusTagihan();
+      final tahun = await tahunController.getTahunAkademik();
+
+      setState(() {
+        listStatus = statusRaw;
+        listTahun = tahun;
+      });
+    } catch (_) {}
 
     try {
+      final detail = await tagihanController.getDetailTagihan(
+        widget.data.idTagihan,
+      );
 
-      final detail =
-    await tagihanController
-        .getDetailTagihan(
-  widget.data.idTagihan,
-);
+      if (detail != null) {
+        setState(() {
+          nimController.text = detail.nim;
+          totalController.text = detail.totalTagihan.toStringAsFixed(0);
+          selectedStatus = detail.idStatusTagihan;
+          selectedTahun = detail.idTahunAkademik;
+          selectedTanggal = DateTime.tryParse(detail.jatuhTempo);
+        });
+      }
+    } catch (_) {}
 
-if (detail == null) {
-  if (!mounted) return;
+    setState(() {
+      isLoading = false;
+    });
+  }
 
-  ScaffoldMessenger.of(context)
-      .showSnackBar(
-    const SnackBar(
-      content: Text(
-        "Data tagihan tidak ditemukan",
-      ),
-    ),
-  );
+  Future<void> cariMahasiswa() async {
+    if (nimController.text.trim().isEmpty) {
+      return;
+    }
 
-  Navigator.pop(context);
-  return;
-}
+    try {
+      final mahasiswa = await mahasiswaController.getMahasiswa(
+        nimController.text.trim(),
+      );
 
-      final statusRaw =
-          await statusController
-              .getStatusTagihan();
-
-      final tahun =
-          await tahunController
-              .getTahunAkademik();
-
-      setState(() {
-
-        listStatus =
-            statusRaw;
-
-        listTahun =
-            tahun;
-
-        nimController.text =
-            detail.nim;
-
-        totalController.text =
-            detail.totalTagihan
-                .toStringAsFixed(0);
-
-        selectedStatus =
-            detail.idStatusTagihan;
-
-        selectedTahun =
-            detail.idTahunAkademik;
-
-        selectedTanggal =
-            DateTime.parse(
-          detail.jatuhTempo,
+      if (mahasiswa.isNotEmpty) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Mahasiswa ditemukan: ${mahasiswa['NAMA'] ?? ''}"),
+          ),
         );
-
-        isLoading = false;
-      });
-
-    } catch (e) {
-
-      setState(() {
-        isLoading = false;
-      });
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Mahasiswa tidak ditemukan"),
+          ),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Mahasiswa tidak ditemukan"),
+        ),
+      );
     }
   }
 
@@ -187,6 +187,8 @@ if (detail == null) {
   ).format(
     selectedTanggal!,
   ),
+  nim: nimController.text,
+  idTahunAkademik: selectedTahun,
 );
 
     if (!mounted) return;
@@ -262,11 +264,19 @@ if (detail == null) {
             TextFormField(
               controller:
                   nimController,
-              readOnly: true,
               decoration:
-                  const InputDecoration(
+                  InputDecoration(
                 labelText:
                     "NIM Mahasiswa",
+                suffixIcon:
+                    IconButton(
+                  icon:
+                      const Icon(
+                    Icons.search,
+                  ),
+                  onPressed:
+                      cariMahasiswa,
+                ),
               ),
             ),
 
@@ -299,21 +309,31 @@ if (detail == null) {
                 labelText:
                     "Tahun Akademik",
               ),
-              items:
-                  listTahun.map(
-                (e) {
+              items: [
+                if (selectedTahun != null && !listTahun.any((e) => e.id.toString() == selectedTahun))
+                  DropdownMenuItem(
+                    value: selectedTahun,
+                    child: Text("Tahun #$selectedTahun"),
+                  ),
+                ...listTahun.map(
+                  (e) {
 
-                  return DropdownMenuItem(
-                    value:
-                        e.id
-                            .toString(),
-                    child: Text(
-                      e.nama,
-                    ),
-                  );
-                },
-              ).toList(),
-              onChanged: null,
+                    return DropdownMenuItem(
+                      value:
+                          e.id
+                              .toString(),
+                      child: Text(
+                        e.nama,
+                      ),
+                    );
+                  },
+                ),
+              ],
+              onChanged: (v) {
+                setState(() {
+                  selectedTahun = v;
+                });
+              },
             ),
 
             const SizedBox(
@@ -329,19 +349,25 @@ if (detail == null) {
                 labelText:
                     "Status Tagihan",
               ),
-              items:
-                  listStatus.map(
-                (e) {
+              items: [
+                if (selectedStatus != null && !listStatus.any((e) => e.idStatusTagihan == selectedStatus))
+                  DropdownMenuItem(
+                    value: selectedStatus,
+                    child: Text("Status #$selectedStatus"),
+                  ),
+                ...listStatus.map(
+                  (e) {
 
-                  return DropdownMenuItem(
-                    value:
-                        e.idStatusTagihan,
-                    child: Text(
-                      e.namaStatusTagihan,
-                    ),
-                  );
-                },
-              ).toList(),
+                    return DropdownMenuItem(
+                      value:
+                          e.idStatusTagihan,
+                      child: Text(
+                        e.namaStatusTagihan,
+                      ),
+                    );
+                  },
+                ),
+              ],
               onChanged: (v) {
 
                 setState(() {
@@ -404,6 +430,7 @@ if (detail == null) {
                       const Color(
                     0xFF096430,
                   ),
+                  foregroundColor: Colors.white,
                 ),
                 onPressed:
                     simpan,

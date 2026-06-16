@@ -57,24 +57,29 @@ class _TagihanPageState
           await controller
               .getTagihan();
 
+      // Fetch all mahasiswa once to resolve names instantly
+      final allMhsList = await MahasiswaController().getAllMahasiswa();
+      for (var m in allMhsList) {
+        final nim = m['NIM']?.toString() ?? "";
+        final nama = m['NAMA']?.toString() ?? "";
+        if (nim.isNotEmpty) {
+          namaMahasiswa[nim] = nama;
+        }
+      }
+
       for (var item in result) {
-
-        try {
-
-          final mahasiswa =
-              await MahasiswaController()
-                  .getMahasiswa(
-            item.nim,
-          );
-
-          namaMahasiswa[item.nim] =
-              mahasiswa["NAMA"] ?? "";
-
-        } catch (_) {
-
-          namaMahasiswa[item.nim] =
-              "-";
-
+        if (!namaMahasiswa.containsKey(item.nim)) {
+          try {
+            final mahasiswa =
+                await MahasiswaController()
+                    .getMahasiswa(
+              item.nim,
+            );
+            namaMahasiswa[item.nim] =
+                mahasiswa["NAMA"] ?? "-";
+          } catch (_) {
+            namaMahasiswa[item.nim] = "-";
+          }
         }
       }
 
@@ -228,6 +233,7 @@ class _TagihanPageState
             const Color(
           0xFF096430,
         ),
+        foregroundColor: Colors.white,
 
         onPressed: () async {
 
@@ -561,7 +567,8 @@ Widget buildTagihanCard(
         ],
       ),
 
-      trailing: Column(
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
 
           IconButton(

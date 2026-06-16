@@ -70,6 +70,8 @@ class _TambahTagihanPageState
   List<StatusTagihan>
       listStatus = [];
 
+  List<dynamic> listMahasiswa = [];
+
   bool isLoading = true;
 
   bool isPenerimaBeasiswa =
@@ -82,6 +84,8 @@ class _TambahTagihanPageState
   int? selectedKategori;
 
   int? selectedStatus;
+
+  String? selectedNim;
 
   DateTime? jatuhTempo;
 
@@ -120,6 +124,8 @@ final status =
         )
         .toList();
 
+  final mhsList = await mahasiswaController.getAllMahasiswa();
+
   setState(() {
 
     listTahun = tahun;
@@ -127,6 +133,8 @@ final status =
     listKategori = kategori;
 
     listStatus = status;
+
+    listMahasiswa = mhsList;
 
     isLoading = false;
 
@@ -298,41 +306,47 @@ body: Form(
 
     child: Column(
       children: [
-        TextFormField(
-  controller:
-      nimController,
+        DropdownButtonFormField<String>(
+          initialValue: selectedNim,
+          decoration: const InputDecoration(
+            labelText: "Pilih Mahasiswa",
+          ),
+          items: listMahasiswa.map((e) {
+            final nim = e['NIM']?.toString() ?? "";
+            final nama = e['NAMA']?.toString() ?? "";
+            return DropdownMenuItem(
+              value: nim,
+              child: Text("$nim - $nama"),
+            );
+          }).toList(),
+          onChanged: (v) async {
+            setState(() {
+              selectedNim = v;
+              nimController.text = v ?? "";
+            });
 
-  decoration:
-      InputDecoration(
-    labelText:
-        "NIM Mahasiswa",
-
-    suffixIcon:
-        IconButton(
-      icon:
-          const Icon(
-        Icons.search,
-      ),
-      onPressed:
-          cariMahasiswa,
-    ),
-  ),
-),
-
-const SizedBox(height: 16),
-
-TextFormField(
-  controller:
-      namaController,
-
-  readOnly: true,
-
-  decoration:
-      const InputDecoration(
-    labelText:
-        "Nama Mahasiswa",
-  ),
-),
+            if (v != null) {
+              try {
+                final penerima = await beasiswaController.getData();
+                final dataBeasiswa = penerima.where((e) => e["NIM"] == v).toList();
+                if (dataBeasiswa.isNotEmpty) {
+                  isPenerimaBeasiswa = true;
+                  idMb = dataBeasiswa.first["ID_MB"];
+                  totalController.text = "0";
+                  selectedStatus = 2; // Cicil
+                } else {
+                  isPenerimaBeasiswa = false;
+                  idMb = null;
+                  if (selectedKategori != null) {
+                    final kategori = listKategori.firstWhere((e) => e.idUktKategori == selectedKategori);
+                    totalController.text = kategori.nominal.toStringAsFixed(0);
+                  }
+                }
+                setState(() {});
+              } catch (_) {}
+            }
+          },
+        ),
 
 if (isPenerimaBeasiswa)
 
@@ -552,11 +566,17 @@ const SizedBox(height: 24),
 SizedBox(
   width: double.infinity,
 
-  height: 50,
+  height: 55,
 
   child:
       ElevatedButton(
-
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFF096430),
+      foregroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
     onPressed: simpan,
 
     child: const Text(

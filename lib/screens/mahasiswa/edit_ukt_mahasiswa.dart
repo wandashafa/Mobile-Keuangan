@@ -30,6 +30,15 @@ bool isSaving = false;
   @override
   void initState() {
     super.initState();
+    if (widget.mahasiswa['id_tahun_akademik'] != null) {
+      selectedTahun = widget.mahasiswa['id_tahun_akademik'].toString();
+    }
+    if (widget.mahasiswa['id_ukt_kategori'] != null) {
+      selectedKategori = widget.mahasiswa['id_ukt_kategori'].toString();
+    }
+    if (widget.mahasiswa['id_status_mhs'] != null) {
+      selectedStatus = widget.mahasiswa['id_status_mhs'].toString();
+    }
     loadMasterData();
   }
 
@@ -83,6 +92,14 @@ bool isSaving = false;
         int.parse(selectedStatus!),
   );
 
+  Map<String, dynamic>? resultUkt;
+  if (selectedKategori != null) {
+     resultUkt = await DataUktService.updateUktMahasiswa(
+         nim: widget.mahasiswa['nim'],
+         idUktKategori: int.parse(selectedKategori!),
+     );
+  }
+
   if (!mounted) return;
 
   setState(() {
@@ -98,7 +115,7 @@ bool isSaving = false;
     ),
   );
 
-  if (result['success'] == true) {
+  if (result['success'] == true || (resultUkt != null && resultUkt['success'] == true)) {
     Navigator.pop(context, true);
   }
 }

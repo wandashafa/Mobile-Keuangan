@@ -1,37 +1,38 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../core/constants/api_constants.dart';
+import '../core/utils/local_storage_cache.dart';
 
 class DashboardService {
   Future<Map<String, dynamic>> getDashboardData() async {
     try {
       final mahasiswaRes = await http.get(
         Uri.parse(
-          '${ApiConstants.baseUrl}/mahasiswa',
+          '${ApiConstants.mahasiswaBaseUrl}/mahasiswa',
         ),
       );
 
       final tagihanRes = await http.get(
         Uri.parse(
-          '${ApiConstants.baseUrl}/tagihan',
+          '${ApiConstants.mahasiswaBaseUrl}/tagihan',
         ),
       );
 
       final pembayaranRes = await http.get(
         Uri.parse(
-          '${ApiConstants.baseUrl}/pembayaran',
+          '${ApiConstants.mahasiswaBaseUrl}/pembayaran',
         ),
       );
 
       final beasiswaRes = await http.get(
         Uri.parse(
-          '${ApiConstants.baseUrl}/beasiswa',
+          '${ApiConstants.mahasiswaBaseUrl}/beasiswa',
         ),
       );
 
       final tahunRes = await http.get(
         Uri.parse(
-          '${ApiConstants.baseUrl}/tahun-akademik',
+          '${ApiConstants.mahasiswaBaseUrl}/tahun-akademik',
         ),
       );
 
@@ -50,7 +51,7 @@ class DashboardService {
       final tahunData =
           jsonDecode(tahunRes.body);
 
-      return {
+      final result = {
         "mahasiswa":
             mahasiswaData["data"] ?? [],
         "tagihan":
@@ -62,10 +63,22 @@ class DashboardService {
         "tahun":
             tahunData["data"] ?? [],
       };
-    } catch (e) {
-      throw Exception(
-        'Gagal memuat dashboard: $e',
-      );
+
+      await LocalStorageCache.save('cache_dashboard_data', result);
+      return result;
+    } catch (_) {}
+
+    final cached = await LocalStorageCache.get('cache_dashboard_data');
+    if (cached != null) {
+      return Map<String, dynamic>.from(cached);
     }
+
+    return {
+      "mahasiswa": [],
+      "tagihan": [],
+      "pembayaran": [],
+      "beasiswa": [],
+      "tahun": [],
+    };
   }
 }

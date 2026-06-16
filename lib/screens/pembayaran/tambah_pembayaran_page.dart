@@ -355,6 +355,7 @@ class _TambahPembayaranPageState
                       const Color(
                     0xFF096430,
                   ),
+                  foregroundColor: Colors.white,
                 ),
                 onPressed:
                     simpan,

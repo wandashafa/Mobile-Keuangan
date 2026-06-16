@@ -12,10 +12,10 @@ class Metode {
   ) {
     return Metode(
       idMetode:
-          json["ID_METODE"] ?? 0,
+          json["ID_METODE"] ?? json["id_metode"] ?? 0,
 
       namaMetode:
-          json["NAMA_METODE"] ?? '',
+          json["NAMA_METODE"] ?? json["nama_metode"] ?? '',
     );
   }
 }

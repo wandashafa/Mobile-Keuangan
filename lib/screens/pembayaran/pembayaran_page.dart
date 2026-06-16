@@ -70,20 +70,30 @@ class _PembayaranPageState
           t.idTagihan: t
       };
 
+      // Fetch all mahasiswa once to resolve names instantly
+      final allMhsList = await MahasiswaController().getAllMahasiswa();
+      for (var m in allMhsList) {
+        final nim = m['NIM']?.toString() ?? "";
+        final nama = m['NAMA']?.toString() ?? "";
+        if (nim.isNotEmpty) {
+          namaMhs[nim] = nama;
+        }
+      }
+
       for (var item in tagihan) {
-
-        try {
-
-          final mhs =
-              await MahasiswaController()
-                  .getMahasiswa(
-            item.nim,
-          );
-
-          namaMhs[item.nim] =
-              mhs["NAMA"] ?? "-";
-
-        } catch (_) {}
+        if (!namaMhs.containsKey(item.nim)) {
+          try {
+            final mhs =
+                await MahasiswaController()
+                    .getMahasiswa(
+              item.nim,
+            );
+            namaMhs[item.nim] =
+                mhs["NAMA"] ?? "-";
+          } catch (_) {
+            namaMhs[item.nim] = "-";
+          }
+        }
       }
 
       setState(() {
@@ -195,6 +205,7 @@ class _PembayaranPageState
             const Color(
           0xFF096430,
         ),
+        foregroundColor: Colors.white,
 
         onPressed: () async {
 
@@ -386,7 +397,8 @@ class _PembayaranPageState
                             ),
 
                             trailing:
-                                Column(
+                                Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
 
                                 IconButton(

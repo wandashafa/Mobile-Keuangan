@@ -3,8 +3,12 @@ import 'screens/auth/login.dart';
 import 'screens/main_page.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'core/constants/api_constants.dart';
+
 void main()async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+  await ApiConstants.checkVpsStatus();
 
   runApp(const SimpaduApp());
 }

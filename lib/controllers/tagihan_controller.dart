@@ -55,6 +55,8 @@ class TagihanController {
     required int idStatusTagihan,
     required double totalTagihan,
     required String jatuhTempo,
+    String? nim,
+    String? idTahunAkademik,
   }) async {
     return await service.updateTagihan(
       idTagihan:
@@ -65,6 +67,8 @@ class TagihanController {
           totalTagihan,
       jatuhTempo:
           jatuhTempo,
+      nim: nim,
+      idTahunAkademik: idTahunAkademik,
     );
   }
 

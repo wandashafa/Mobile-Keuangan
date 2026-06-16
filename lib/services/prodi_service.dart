@@ -1,20 +1,24 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../core/constants/api_constants.dart';
+import '../core/utils/local_storage_cache.dart';
 
 class ProdiService {
 
-  static const String baseUrl =
-      'http://127.0.0.1:8000';
-
   Future<List<dynamic>> getProdi() async {
+    try {
+      final response = await http.get(
+        Uri.parse("${ApiConstants.mahasiswaBaseUrl}/prodi"),
+      );
 
-    final response = await http.get(
-      Uri.parse("$baseUrl/prodi"),
-    );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final list = data["data"] ?? [];
+        await LocalStorageCache.save('cache_prodi_list', list);
+        return list;
+      }
+    } catch (_) {}
 
-    final data =
-        jsonDecode(response.body);
-
-    return data["data"];
+    return await LocalStorageCache.get('cache_prodi_list') ?? [];
   }
 }

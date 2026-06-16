@@ -14,11 +14,11 @@ class TahunAkademik {
   ) {
     return TahunAkademik(
       id:
-          json['id_tahun_akademik'] ?? 0,
+          json['id_tahun_akademik'] ?? json['ID_TAHUN_AKADEMIK'] ?? 0,
       nama:
-          json['nama_tahun_akademik'] ?? '',
+          json['nama_tahun_akademik'] ?? json['NAMA_TAHUN_AKADEMIK'] ?? json['TAHUN_AKADEMIK'] ?? '',
       aktif:
-          json['aktif'] ?? '',
+          json['aktif'] ?? json['AKTIF'] ?? '',
     );
   }
 }

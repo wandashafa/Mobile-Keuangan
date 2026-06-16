@@ -41,65 +41,65 @@ class _PenerimaBeasiswaPageState
   }
 
   Future<void> loadData() async {
-  setState(() {
-    isLoading = true;
-  });
-
-  final result =
-      await controller.getData();
-
-  List<MahasiswaBeasiswa> temp = [];
-
-  for (var item in result) {
-    String nama = '';
+    setState(() {
+      isLoading = true;
+    });
 
     try {
-      final mahasiswa =
-          await MahasiswaController()
-              .getMahasiswa(
-        item['NIM'],
-      );
+      final result = await controller.getData();
 
-      nama = mahasiswa['data']
-              ['NAMA'] ??
-          '';
+      // Fetch all mahasiswa once to resolve names instantly
+      final allMhsList = await MahasiswaController().getAllMahasiswa();
+      final Map<String, String> namaMap = {};
+      for (var m in allMhsList) {
+        final nim = m['NIM']?.toString() ?? "";
+        final nama = m['NAMA']?.toString() ?? "";
+        if (nim.isNotEmpty) {
+          namaMap[nim] = nama;
+        }
+      }
+
+      List<MahasiswaBeasiswa> temp = [];
+
+      for (var item in result) {
+        final nim = (item['NIM'] ?? item['nim'])?.toString() ?? "";
+        String nama = namaMap[nim] ?? '';
+
+        // Fallback if not found in bulk list
+        if (nama.isEmpty && nim.isNotEmpty) {
+          try {
+            final mahasiswa = await MahasiswaController().getMahasiswa(nim);
+            nama = (mahasiswa['NAMA'] ?? mahasiswa['nama']) ?? '';
+          } catch (_) {}
+        }
+
+        final bName = item['beasiswa']?['NAMA_BEASISWA'] ?? item['beasiswa']?['nama_beasiswa'] ?? '';
+        final tAkademik = item['tahunAkademik']?['TAHUN_AKADEMIK'] ?? item['tahun_akademik']?['nama'] ?? item['id_tahun_akademik'] ?? item['ID_TAHUN_AKADEMIK'];
+
+        temp.add(
+          MahasiswaBeasiswa(
+            idMb: item['ID_MB'] ?? item['id_mb'] ?? 0,
+            nim: nim,
+            namaMahasiswa: nama.isNotEmpty ? nama : "-",
+            idBeasiswa: item['ID_BEASISWA'] ?? item['id_beasiswa'] ?? 0,
+            namaBeasiswa: bName,
+            idTahunAkademik: (item['ID_TAHUN_AKADEMIK'] ?? item['id_tahun_akademik'])?.toString() ?? '',
+            tahunAkademik: tAkademik?.toString() ?? '',
+            nominalPotongan: double.tryParse((item['NOMINAL_POTONGAN'] ?? item['nominal_potongan'])?.toString() ?? '') ?? 0,
+          ),
+        );
+      }
+
+      setState(() {
+        data = temp;
+        filteredData = temp;
+      });
     } catch (_) {}
 
-    temp.add(
-      MahasiswaBeasiswa(
-        idMb: item['ID_MB'],
-        nim: item['NIM'],
-        namaMahasiswa: nama,
-        idBeasiswa:
-            item['ID_BEASISWA'],
-        namaBeasiswa:
-            item['beasiswa']
-                    ?[
-                    'NAMA_BEASISWA'] ??
-                '',
-        idTahunAkademik: item[
-                'ID_TAHUN_AKADEMIK']
-            .toString(),
-        tahunAkademik: item[
-                'ID_TAHUN_AKADEMIK']
-            .toString(),
-        nominalPotongan:
-            double.tryParse(
-                  item[
-                          'NOMINAL_POTONGAN']
-                      .toString(),
-                ) ??
-                0,
-      ),
-    );
+    setState(() {
+      isLoading = false;
+    });
   }
-
-  setState(() {
-    data = temp;
-    filteredData = temp;
-    isLoading = false;
-  });
-}
 
 void searchData(String value) {
   setState(() {
@@ -306,7 +306,15 @@ const SizedBox(height: 12),
 
 SizedBox(
   width: double.infinity,
+  height: 55,
   child: ElevatedButton.icon(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFF096430),
+      foregroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
     icon: const Icon(
       Icons.add_circle,
     ),
