@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../core/constants/api_constants.dart';
 import 'token_storage.dart';
 import '../core/utils/local_storage_cache.dart';
+import 'package:flutter/foundation.dart';
 
 class MahasiswaBeasiswaService {
   Future<Map<String, String>> _headers() async {
@@ -63,7 +64,7 @@ class MahasiswaBeasiswaService {
     } catch (_) {}
 
     final cached = await LocalStorageCache.get('cache_mahasiswa_beasiswa');
-    if (cached != null) return cached;
+    if (cached is List) return cached;
     await LocalStorageCache.save('cache_mahasiswa_beasiswa', _dummyMahasiswaBeasiswa);
     return _dummyMahasiswaBeasiswa;
   }
@@ -85,16 +86,20 @@ class MahasiswaBeasiswaService {
               idBeasiswa,
           "nim": nim,
           "id_tahun_akademik":
-              idTahunAkademik,
+              idTahunAkademik.toString(),
           "nominal_potongan":
-              nominalPotongan,
+              int.tryParse(nominalPotongan) ?? double.tryParse(nominalPotongan) ?? nominalPotongan,
         }),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;
+      } else {
+        debugPrint("VPS mahasiswa-beasiswa validation error: ${response.statusCode} - ${response.body}");
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint("VPS mahasiswa-beasiswa request exception: $e");
+    }
 
     try {
       final cachedRaw = await LocalStorageCache.get('cache_mahasiswa_beasiswa') ?? _dummyMahasiswaBeasiswa;
@@ -146,14 +151,18 @@ class MahasiswaBeasiswaService {
         headers: await _headers(),
         body: jsonEncode({
           "nominal_potongan":
-              nominalPotongan,
+              int.tryParse(nominalPotongan) ?? double.tryParse(nominalPotongan) ?? nominalPotongan,
         }),
       );
 
       if (response.statusCode == 200) {
         return true;
+      } else {
+        debugPrint("VPS updateData validation error: ${response.statusCode} - ${response.body}");
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint("VPS updateData request exception: $e");
+    }
 
     try {
       final cachedRaw = await LocalStorageCache.get('cache_mahasiswa_beasiswa') ?? _dummyMahasiswaBeasiswa;

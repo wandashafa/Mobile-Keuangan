@@ -113,7 +113,7 @@ class DataUktService {
       }
     } catch (_) {}
     final cached = await LocalStorageCache.get('cache_tahun');
-    if (cached != null) return cached;
+    if (cached is List) return cached;
     await LocalStorageCache.save('cache_tahun', _dummyTahun);
     return _dummyTahun;
   }
@@ -131,7 +131,7 @@ class DataUktService {
       }
     } catch (_) {}
     final cached = await LocalStorageCache.get('cache_prodi');
-    if (cached != null) return cached;
+    if (cached is List) return cached;
     await LocalStorageCache.save('cache_prodi', _dummyProdi);
     return _dummyProdi;
   }
@@ -150,7 +150,7 @@ class DataUktService {
       }
     } catch (_) {}
     final cached = await LocalStorageCache.get('cache_mahasiswa');
-    if (cached != null) return cached;
+    if (cached is List) return cached;
     await LocalStorageCache.save('cache_mahasiswa', _dummyMahasiswa);
     return _dummyMahasiswa;
   }
@@ -168,7 +168,7 @@ class DataUktService {
       }
     } catch (_) {}
     final cached = await LocalStorageCache.get('cache_tagihan');
-    if (cached != null) return cached;
+    if (cached is List) return cached;
     await LocalStorageCache.save('cache_tagihan', _dummyTagihan);
     return _dummyTagihan;
   }
@@ -186,7 +186,7 @@ class DataUktService {
       }
     } catch (_) {}
     final cached = await LocalStorageCache.get('cache_kategori_ukt');
-    if (cached != null) return cached;
+    if (cached is List) return cached;
     await LocalStorageCache.save('cache_kategori_ukt', _dummyKategoriUkt);
     return _dummyKategoriUkt;
   }
@@ -204,7 +204,7 @@ class DataUktService {
       }
     } catch (_) {}
     final cached = await LocalStorageCache.get('cache_status_tagihan');
-    if (cached != null) return cached;
+    if (cached is List) return cached;
     await LocalStorageCache.save('cache_status_tagihan', _dummyStatusTagihan);
     return _dummyStatusTagihan;
   }
@@ -223,7 +223,7 @@ class DataUktService {
       }
     } catch (_) {}
     final cached = await LocalStorageCache.get('cache_status_mahasiswa');
-    if (cached != null) return cached;
+    if (cached is List) return cached;
     await LocalStorageCache.save('cache_status_mahasiswa', _dummyStatusMahasiswa);
     return _dummyStatusMahasiswa;
   }

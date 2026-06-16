@@ -51,7 +51,7 @@ class TagihanService {
     } catch (_) {}
 
     final cached = await LocalStorageCache.get('cache_tagihan_list');
-    if (cached != null) return cached;
+    if (cached is List) return cached;
     await LocalStorageCache.save('cache_tagihan_list', _dummyTagihan);
     return _dummyTagihan;
   }

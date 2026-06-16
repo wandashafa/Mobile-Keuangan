@@ -42,7 +42,7 @@ class PembayaranService {
     } catch (_) {}
 
     final cached = await LocalStorageCache.get('cache_pembayaran');
-    if (cached != null) return cached;
+    if (cached is List) return cached;
     await LocalStorageCache.save('cache_pembayaran', _dummyPembayaran);
     return _dummyPembayaran;
   }

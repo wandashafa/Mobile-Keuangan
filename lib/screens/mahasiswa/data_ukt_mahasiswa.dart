@@ -27,6 +27,7 @@ class _DataUktMahasiswaPageState
   String? selectedProdi;
   String? selectedKategori;
   String? selectedStatus;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -35,6 +36,10 @@ class _DataUktMahasiswaPageState
   }
 
   Future<void> loadData() async {
+    setState(() {
+      errorMessage = null;
+    });
+
     try {
       final tahun =
           await DataUktService.getTahun();
@@ -75,6 +80,7 @@ class _DataUktMahasiswaPageState
     } catch (e) {
       debugPrint("Error loadData data_ukt_mahasiswa: $e");
       setState(() {
+        errorMessage = e.toString();
         isLoading = false;
       });
     }
@@ -341,12 +347,66 @@ class _DataUktMahasiswaPageState
             ),
         ],
       ),
-    ],
-  ),
-),
+                    ],
+                  ),
+                ),
+                if (errorMessage != null)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Text(
+                      "Error: $errorMessage",
+                      style: TextStyle(
+                        color: Colors.red.shade800,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                /// CARD MAHASISWA
+                  ...mahasiswa.where((mhs) {
+                    // Filter by prodi
+                    if (selectedProdi != null &&
+                        mhs['prodi']?['id_prodi']?.toString() != selectedProdi) {
+                      return false;
+                    }
+                    
+                    final dataTagihan = tagihan.firstWhere(
+                      (e) => e['NIM'] == mhs['nim'],
+                      orElse: () => {},
+                    );
 
-                  /// CARD MAHASISWA
-                  ...mahasiswa.map(
+                    // Filter by tahun akademik
+                    if (selectedTahun != null) {
+                      final uktCatId = dataTagihan['ukt_kategori']?['ID_UKT_KATEGORI'];
+                      final foundCat = kategoriUkt.firstWhere(
+                        (c) => c['ID_UKT_KATEGORI']?.toString() == uktCatId?.toString(),
+                        orElse: () => null,
+                      );
+                      if (foundCat == null ||
+                          foundCat['ID_TAHUN_AKADEMIK']?.toString() != selectedTahun) {
+                        return false;
+                      }
+                    }
+
+                    // Filter by kategori ukt
+                    if (selectedKategori != null &&
+                        dataTagihan['ukt_kategori']?['ID_UKT_KATEGORI']?.toString() != selectedKategori) {
+                      return false;
+                    }
+
+                    // Filter by status tagihan
+                    if (selectedStatus != null &&
+                        dataTagihan['status_tagihan']?['ID_STATUS_TAGIHAN']?.toString() != selectedStatus) {
+                      return false;
+                    }
+
+                    return true;
+                  }).map(
                     (mhs) {
                       final dataTagihan =
                           tagihan.firstWhere(

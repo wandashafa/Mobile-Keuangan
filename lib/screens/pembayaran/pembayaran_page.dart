@@ -96,6 +96,7 @@ class _PembayaranPageState
         }
       }
 
+      if (!mounted) return;
       setState(() {
 
         data = pembayaran;
@@ -108,6 +109,7 @@ class _PembayaranPageState
 
     } catch (_) {}
 
+    if (!mounted) return;
     setState(() {
       isLoading = false;
     });
