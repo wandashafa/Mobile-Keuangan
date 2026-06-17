@@ -29,7 +29,7 @@ class Tagihan {
   ) {
     return Tagihan(
       idTagihan:
-          json["ID_TAGIHAN"] ?? json["id_tagihan"] ?? 0,
+          int.tryParse((json["ID_TAGIHAN"] ?? json["id_tagihan"] ?? 0).toString()) ?? 0,
 
       nim: json["NIM"] ?? json["nim"] ?? '',
 
@@ -41,7 +41,7 @@ class Tagihan {
               '',
 
       idStatusTagihan:
-          json["ID_STATUS_TAGIHAN"] ?? json["id_status_tagihan"] ?? 0,
+          int.tryParse((json["ID_STATUS_TAGIHAN"] ?? json["id_status_tagihan"] ?? 0).toString()) ?? 0,
 
       namaStatus:
           json["status_tagihan"]
@@ -53,7 +53,7 @@ class Tagihan {
               '',
 
       idUktKategori:
-          json["ID_UKT_KATEGORI"] ?? json["id_ukt_kategori"] ?? 0,
+          int.tryParse((json["ID_UKT_KATEGORI"] ?? json["id_ukt_kategori"] ?? 0).toString()) ?? 0,
 
       namaKategori:
           json["ukt_kategori"]

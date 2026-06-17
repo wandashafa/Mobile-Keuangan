@@ -48,7 +48,7 @@ class MahasiswaController {
     } catch (_) {}
 
     final cached = await LocalStorageCache.get('cache_all_mahasiswa');
-    if (cached != null) return cached;
+    if (cached is List) return cached;
     await LocalStorageCache.save('cache_all_mahasiswa', _dummyMahasiswa);
     return _dummyMahasiswa;
   }

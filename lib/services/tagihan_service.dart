@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'package:flutter/foundation.dart';
 import '../services/token_storage.dart';
 import '../core/constants/api_constants.dart';
 import '../core/utils/local_storage_cache.dart';
@@ -33,6 +34,7 @@ class TagihanService {
   Future<List<dynamic>> getTagihan() async {
     try {
       final token = await TokenStorage.getAccessToken();
+      debugPrint("getTagihan: Requesting /tagihan with token exists: ${token != null && token.isNotEmpty}");
 
       final response = await http.get(
         Uri.parse("${ApiConstants.mahasiswaBaseUrl}/tagihan"),
@@ -42,16 +44,35 @@ class TagihanService {
         },
       );
 
+      debugPrint("getTagihan: API responded with status ${response.statusCode}");
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
-        final list = json["data"] ?? [];
-        await LocalStorageCache.save('cache_tagihan_list', list);
-        return list;
+        final List<dynamic> serverList = json["data"] ?? [];
+        debugPrint("getTagihan: Success 200, received ${serverList.length} items from server");
+        
+        final cached = await LocalStorageCache.get('cache_tagihan_list');
+        final List<dynamic> localItems = [];
+        if (cached is List) {
+          localItems.addAll(cached.where((e) => e is Map && e["is_local"] == true));
+        }
+        
+        final List<dynamic> mergedList = [...serverList, ...localItems];
+        debugPrint("getTagihan: Merged list has ${mergedList.length} items (server=${serverList.length}, local=${localItems.length})");
+        await LocalStorageCache.save('cache_tagihan_list', mergedList);
+        return mergedList;
+      } else {
+        debugPrint("getTagihan: API responded with non-200 body: ${response.body}");
       }
-    } catch (_) {}
+    } catch (e, stack) {
+      debugPrint("getTagihan: Exception during API request: $e");
+      debugPrint(stack.toString());
+    }
 
     final cached = await LocalStorageCache.get('cache_tagihan_list');
+    debugPrint("getTagihan: Fallback cache loaded is List: ${cached is List}, length: ${cached is List ? cached.length : 0}");
     if (cached is List) return cached;
+    
+    debugPrint("getTagihan: Cache not found or invalid, using dummy list and saving it");
     await LocalStorageCache.save('cache_tagihan_list', _dummyTagihan);
     return _dummyTagihan;
   }
@@ -172,13 +193,17 @@ class TagihanService {
         "ID_STATUS_TAGIHAN": idStatusTagihan,
         "TOTAL_TAGIHAN": catNominal,
         "JATUH_TEMPO": jatuhTempo,
+        "is_local": true,
         "status_tagihan": {"NAMA_STATUS_TAGIHAN": statusName},
         "ukt_kategori": {"NAMA_KATEGORI": catName, "NOMINAL": catNominal}
       });
 
       await LocalStorageCache.save('cache_tagihan_list', list);
       return true;
-    } catch (_) {}
+    } catch (e, stack) {
+      debugPrint("ERROR IN createTagihan local fallback: $e");
+      debugPrint(stack.toString());
+    }
 
     return false;
   }

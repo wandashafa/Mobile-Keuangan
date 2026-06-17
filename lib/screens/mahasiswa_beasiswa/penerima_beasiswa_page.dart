@@ -226,14 +226,14 @@ Widget build(
       data.length.toString(),
     ),
     statCard(
-      "Prestasi",
+      "PPA",
       data
           .where(
             (e) => e
                 .namaBeasiswa
                 .toLowerCase()
                 .contains(
-                  "prestasi",
+                  "ppa",
                 ),
           )
           .length
@@ -243,30 +243,25 @@ Widget build(
       "KIP-K",
       data
           .where(
-            (e) =>
-                e.namaBeasiswa
-                    .toLowerCase()
-                    .contains(
-                      "kip",
-                    ) ||
-                e.namaBeasiswa
-                    .toLowerCase()
-                    .contains(
-                      "bidik",
-                    ),
+            (e) => e
+                .namaBeasiswa
+                .toLowerCase()
+                .contains(
+                  "kip",
+                ),
           )
           .length
           .toString(),
     ),
     statCard(
-      "Perusahaan",
+      "Bidik Misi",
       data
           .where(
             (e) => e
                 .namaBeasiswa
                 .toLowerCase()
                 .contains(
-                  "perusahaan",
+                  "bidik",
                 ),
           )
           .length
@@ -347,9 +342,9 @@ SingleChildScrollView(
   child: Row(
     children: [
       "Semua",
-      "Prestasi",
+      "PPA",
       "KIP",
-      "Perusahaan",
+      "Bidik Misi",
     ].map((e) {
       return Padding(
         padding:

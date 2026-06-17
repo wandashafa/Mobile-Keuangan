@@ -137,14 +137,18 @@ class _GenerateTagihanMassalPageState
         final nim = m['NIM']?.toString() ?? "";
         if (nim.isEmpty) continue;
 
-        await tagihanController.createTagihan(
+        final success = await tagihanController.createTagihan(
           nim: nim,
           idTahunAkademik: selectedTahun!,
           idUktKategori: selectedKategori!,
           idStatusTagihan: statusId,
           jatuhTempo: DateFormat('yyyy-MM-dd').format(jatuhTempo!),
         );
-        generatedCount++;
+        if (success) {
+          generatedCount++;
+        } else {
+          debugPrint("FAILED TO CREATE TAGIHAN FOR NIM: $nim");
+        }
       }
 
       if (!mounted) return;

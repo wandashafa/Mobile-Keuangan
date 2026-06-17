@@ -56,6 +56,10 @@ class _TagihanPageState
       final result =
           await controller
               .getTagihan();
+      debugPrint("TAGIHAN PAGE: Fetched ${result.length} tagihans");
+      for (var t in result) {
+        debugPrint("TAGIHAN: ID=${t.idTagihan}, NIM=${t.nim}, Status=${t.namaStatus}, Total=${t.totalTagihan}");
+      }
 
       // Fetch all mahasiswa once to resolve names instantly
       final allMhsList = await MahasiswaController().getAllMahasiswa();
@@ -90,7 +94,10 @@ class _TagihanPageState
 
       });
 
-    } catch (_) {}
+    } catch (e, stack) {
+      debugPrint("ERROR IN loadData of TagihanPage: $e");
+      debugPrint(stack.toString());
+    }
 
     setState(() {
       isLoading = false;
